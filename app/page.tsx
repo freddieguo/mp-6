@@ -1,95 +1,110 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
 
-export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+import { useEffect, useState } from "react";
+import styled from "styled-components";
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #f7f9fc;
+  font-family: 'Arial', sans-serif;
+  text-align: center;
+`;
+
+const Card = styled.div`
+  background-color: white;
+  padding: 3.5rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  width: 100%;
+`;
+
+const Heading = styled.h1`
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 1rem;
+`;
+
+const SignIn = styled.h1`
+  font-size: 1.5rem;
+  color: #333;
+  margin-bottom: 1rem;
+`;
+
+const Text = styled.p`
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 1rem;
+`;
+
+const Button = styled.a`
+  display: inline-block;
+  padding: 0.8rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  background-color: #007bff;
+  color: white;
+  font-size: 1rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #0056b3;
+  }
+`;
+
+const Info = styled.div`
+  margin-top: 1rem;
+  text-align: left;
+`;
+
+export default function HomePage() {
+    const [session, setSession] = useState(null);
+
+    useEffect(() => {
+        const fetchSession = async () => {
+            const res = await fetch("/api/auth/session");
+            const data = await res.json();
+            setSession(data);
+        };
+
+        fetchSession();
+    }, []);
+
+    if (!session) {
+        return (
+            <Container>
+                <Card>
+                    <Heading>CS391 MP-6</Heading>
+                    <SignIn>Please Sign In</SignIn>
+                    <Button href="/api/auth/signin">Sign In</Button>
+                </Card>
+            </Container>
+        );
+    }
+
+    return (
+        <Container>
+            <Card>
+                <Heading>Welcome, {session.user?.name || "User"}!</Heading>
+                <Text>Email: {session.user?.email || "No Email Provided"}</Text>
+                {session.user?.image && <img src={session.user.image} alt="Profile" style={{ borderRadius: '50%', width: '100px', marginBottom: '1rem' }} />}
+                <br/>
+                <Button href="/api/auth/signout">Sign Out</Button>
+
+                <Info>
+                    <h2>This is MP-6</h2>
+                    <br/>
+                    <p>
+                        <strong>Session Expires:</strong> {session.expires || "Unknown"}
+                    </p>
+                </Info>
+            </Card>
+        </Container>
+    );
 }
