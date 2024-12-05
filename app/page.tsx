@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import styled from "styled-components";
+import { Session } from "next-auth";
 
 const Container = styled.div`
   display: flex;
@@ -64,12 +65,12 @@ const Info = styled.div`
 `;
 
 export default function HomePage() {
-    const [session, setSession] = useState(null);
+    const [session, setSession] = useState<Session | null>(null);
 
     useEffect(() => {
         const fetchSession = async () => {
             const res = await fetch("/api/auth/session");
-            const data = await res.json();
+            const data: Session = await res.json();
             setSession(data);
         };
 
